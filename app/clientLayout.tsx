@@ -4,10 +4,7 @@ import type React from "react"
 import { Inter } from "next/font/google"
 import "./globals.css"
 
-// Adicione este script para pré-carregar imagens críticas
 import { preloadCriticalImages } from "@/utils/image-preloader"
-
-// No componente RootLayout, adicione um useEffect para pré-carregar imagens
 import { useEffect } from "react"
 
 import Header from "@/components/header"
@@ -18,30 +15,24 @@ const inter = Inter({ subsets: ["latin"] })
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Pré-carrega imagens críticas
     preloadCriticalImages()
   }, [])
 
-  // Adicione este script para inicializar as imagens e verificar se elas existem
   const scriptContent = `
     try {
-      // Inicializar imagens das receitas
       if (typeof window !== "undefined") {
-        // Função para inicializar imagens
         const initImages = () => {
           try {
-            // Importar funções dinamicamente
             import('/utils/recipe-images.js').then(module => {
               if (module.initializeRecipeImages) {
                 module.initializeRecipeImages();
               }
-              
+
               if (module.preloadCriticalImages) {
                 module.preloadCriticalImages();
               }
             });
-            
-            // Pré-carregar imagens críticas diretamente
+
             const criticalImages = [
               "/images/macarons-franceses-6.png",
               "/images/macarons-franceses-5.png",
@@ -54,22 +45,19 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               "/images/cookies-americanos-4.png",
               "/images/brownie-tradicional-5.png",
             ];
-            
+
             criticalImages.forEach(src => {
               const img = new Image();
               img.src = src;
             });
-            
-            // Verificar e corrigir imagens que não carregam
+
             document.addEventListener('error', function(e) {
               const target = e.target;
               if (target.tagName === 'IMG') {
                 const src = target.getAttribute('src');
                 if (src && !src.includes('placeholder.svg')) {
-                  // Extrair o ID da receita do caminho da imagem ou do contexto
                   let recipeId = '';
-                  
-                  // Tentar extrair do caminho da URL
+
                   if (src.includes('/images/')) {
                     const pathParts = src.split('/');
                     const filename = pathParts[pathParts.length - 1];
@@ -78,8 +66,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       recipeId = nameParts[0] + '-' + nameParts[1];
                     }
                   }
-                  
-                  // Tentar extrair do contexto da página
+
                   if (!recipeId) {
                     const currentPath = window.location.pathname;
                     if (currentPath.includes('/receitas/')) {
@@ -87,8 +74,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       recipeId = pathParts[pathParts.length - 1];
                     }
                   }
-                  
-                  // Tentar usar o mapeamento direto
+
                   const recipeImageMap = {
                     "brownies-recheados": "/images/brownies-recheados-3.png",
                     "cupcakes-decorados": "/images/cupcakes-decorados-2.png",
@@ -99,12 +85,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     "cookies-americanos": "/images/cookies-americanos-4.png",
                     "brownie-tradicional": "/images/brownie-tradicional-5.png",
                   };
-                  
+
                   if (recipeId && recipeImageMap[recipeId]) {
                     console.log('Corrigindo imagem para: ' + recipeImageMap[recipeId]);
                     target.src = recipeImageMap[recipeId];
                   } else {
-                    // Se ainda falhar, use um placeholder
                     target.src = "/placeholder.svg?height=400&width=600";
                   }
                 }
@@ -114,8 +99,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             console.error("Erro ao inicializar imagens:", error);
           }
         };
-        
-        // Executar após o carregamento da página
+
         if (document.readyState === 'complete') {
           initImages();
         } else {
@@ -130,6 +114,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <html lang="pt-BR">
       <head>
+        {/* Script do Google AdSense */}
+        <script 
+          async 
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4404993314672979"
+          crossOrigin="anonymous"
+        />
+        
+        {/* Script interno para imagem */}
         <script dangerouslySetInnerHTML={{ __html: scriptContent }} />
       </head>
       <body className={inter.className}>
